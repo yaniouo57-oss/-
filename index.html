@@ -61,26 +61,11 @@
         
         /* 限定池「全部」卡池卡片样式 */
         .pool-card-item { display: flex; align-items: center; background: var(--panel-bg); border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 12px; }
-        
-        /* 展示图片的左半部分（二分之一） */
-        .pool-card-img-wrapper { 
-            position: relative; 
-            width: 110px; 
-            height: 75px; 
-            border-radius: 6px; 
-            overflow: hidden; 
-            background: #2a2a2a; 
-            flex-shrink: 0; 
-            border: 1px solid var(--gold-dark); 
-        }
-        .pool-card-img-wrapper img { 
-            width: 200%; 
-            height: 100%; 
-            object-fit: cover; 
-            object-position: left center; 
-        }
+        /* 修改：图片尺寸加长，从 110px 调整为 150px */
+        .pool-card-img-wrapper { position: relative; width: 150px; height: 75px; border-radius: 6px; overflow: hidden; background: #2a2a2a; flex-shrink: 0; border: 1px solid var(--gold-dark); }
+        .pool-card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
         .pool-card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #555; font-size: 12px; }
-        .pool-card-title { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.75); color: var(--gold-light); font-size: 11px; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 2; }
+        .pool-card-title { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.75); color: var(--gold-light); font-size: 11px; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .pool-card-stats { flex: 1; margin-left: 12px; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
         .pool-card-stat-row { font-size: 12px; color: var(--text-sub); }
@@ -168,7 +153,7 @@
     <div class="up-chars-panel hidden" id="upCharsPanel">
         <div class="up-chars-header">
             <span class="up-chars-title">UP 绝密角色</span>
-            <button class="add-up-btn" onclick="addUpCharacter()">+ 补充UP角色</button>
+            <button class="add-up-btn" onclick="addUpCharacter()">+ 添加UP角色</button>
         </div>
         <div class="up-chars-list" id="upCharsList">
             <!-- JS 动态生成 -->
@@ -276,11 +261,6 @@
             <div class="form-group">
                 <label>卡池名称</label>
                 <input type="text" class="form-control" id="inputPoolName" placeholder="例如：王粲/陈登 轮换池">
-            </div>
-
-            <div class="form-group">
-                <label>UP 绝密角色 (可选，多个用逗号/空格隔开)</label>
-                <input type="text" class="form-control" id="inputPoolUpChars" placeholder="例如：王粲, 陈登">
             </div>
 
             <div class="form-group">
@@ -413,7 +393,7 @@
                     if (!pool.upCharacters) pool.upCharacters = [];
                     
                     if (pool.upCharacters.length === 0) {
-                        upList.innerHTML = '<span class="up-chars-empty">创建时未设定，可点击右上角补充</span>';
+                        upList.innerHTML = '<span class="up-chars-empty">暂未添加UP角色，点击右上角添加</span>';
                     } else {
                         upList.innerHTML = pool.upCharacters.map((charName, index) => `
                             <div class="up-char-tag">
@@ -429,13 +409,13 @@
             upPanel.classList.add('hidden');
         }
 
-        // 补充UP角色
+        // 添加UP角色
         function addUpCharacter() {
             if (currentPoolId === 'all') return;
             const pool = gachaData.pools.find(p => p.id === currentPoolId);
             if (!pool) return;
 
-            const name = prompt('请输入补充的UP角色名称：');
+            const name = prompt('请输入UP角色名称（如：王粲）：');
             if (name && name.trim()) {
                 if (!pool.upCharacters) pool.upCharacters = [];
                 pool.upCharacters.push(name.trim());
@@ -539,6 +519,7 @@
                         ? `<img src="${pool.cover}" alt="封面">` 
                         : `<div class="pool-card-img-placeholder">无封面</div>`;
 
+                    // 修改：已移除数值后的文本单位（抽、个）
                     const html = `
                         <div class="pool-card-item">
                             <div class="pool-card-img-wrapper">
@@ -546,9 +527,9 @@
                                 <div class="pool-card-title">${pool.name}</div>
                             </div>
                             <div class="pool-card-stats">
-                                <div class="pool-card-stat-row">总次数：<span>${stats.totalPulls}</span> 抽</div>
-                                <div class="pool-card-stat-row">总绝密：<span>${stats.totalSsr}</span> 个</div>
-                                <div class="pool-card-stat-row">平均出绝密：<span>${stats.avgSsr}</span> 抽</div>
+                                <div class="pool-card-stat-row">总次数：<span>${stats.totalPulls}</span></div>
+                                <div class="pool-card-stat-row">总绝密：<span>${stats.totalSsr}</span></div>
+                                <div class="pool-card-stat-row">平均出绝密：<span>${stats.avgSsr}</span></div>
                                 <div class="pool-card-stat-row">小保底不歪率：<span>${stats.upRate}</span></div>
                             </div>
                             <button class="pool-card-edit-btn" onclick="switchPoolTab('${pool.id}')">编辑</button>
@@ -693,7 +674,6 @@
         function openAddPoolModal() {
             document.getElementById('addPoolModal').classList.add('active');
             document.getElementById('inputPoolName').value = '';
-            document.getElementById('inputPoolUpChars').value = '';
             tempBase64Banner = '';
             document.getElementById('previewBanner').src = '';
             document.getElementById('previewBanner').style.display = 'none';
@@ -743,16 +723,12 @@
                 return;
             }
 
-            // 解析 UP 角色文本（支持逗号、中文逗号或空格分割）
-            const upCharsRaw = document.getElementById('inputPoolUpChars').value.trim();
-            const upCharacters = upCharsRaw ? upCharsRaw.split(/[,，\s]+/).filter(Boolean) : [];
-
             const poolId = 'pool_' + Date.now();
             gachaData.pools.push({
                 id: poolId,
                 name,
                 cover: tempBase64Banner,
-                upCharacters: upCharacters
+                upCharacters: []
             });
 
             currentPoolId = poolId;
