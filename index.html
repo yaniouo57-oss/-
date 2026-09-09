@@ -42,7 +42,7 @@
 
         /* 卡池封面 */
         .pool-cover-container { margin: 10px 15px; text-align: center; display: none; }
-        .pool-cover-container img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--gold-dark); }
+        .pool-cover-container img { width: 100%; max-height: 120px; object-fit: cover; object-position: left center; border-radius: 8px; border: 1px solid var(--gold-dark); }
         .del-pool-btn { margin-top: 5px; color: var(--red-spook); font-size: 12px; background: none; border: 1px solid var(--red-spook); padding: 4px 10px; border-radius: 4px; cursor: pointer; }
 
         /* UP角色栏样式 */
@@ -61,9 +61,9 @@
         
         /* 限定池「全部」卡池卡片样式 */
         .pool-card-item { display: flex; align-items: center; background: var(--panel-bg); border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 12px; }
-        /* 修改：图片尺寸加长，从 110px 调整为 150px */
         .pool-card-img-wrapper { position: relative; width: 150px; height: 75px; border-radius: 6px; overflow: hidden; background: #2a2a2a; flex-shrink: 0; border: 1px solid var(--gold-dark); }
-        .pool-card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        /* 修改：使用 object-position: left center 让图片从左边开始显示 */
+        .pool-card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; object-position: left center; }
         .pool-card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #555; font-size: 12px; }
         .pool-card-title { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.75); color: var(--gold-light); font-size: 11px; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
@@ -120,7 +120,7 @@
         .file-upload-btn { border: 1px dashed var(--gold-dark); color: var(--gold-light); background: #222; padding: 10px; text-align: center; border-radius: 4px; display: block; }
         .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
         .image-preview { width: 60px; height: 60px; margin-top: 10px; border-radius: 4px; object-fit: cover; display: none; border: 1px solid #555; }
-        .banner-preview { width: 100%; height: 80px; margin-top: 10px; border-radius: 4px; object-fit: cover; display: none; border: 1px solid #555; }
+        .banner-preview { width: 100%; height: 80px; margin-top: 10px; border-radius: 4px; object-fit: cover; object-position: left center; display: none; border: 1px solid #555; }
 
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         .btn { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
@@ -519,7 +519,6 @@
                         ? `<img src="${pool.cover}" alt="封面">` 
                         : `<div class="pool-card-img-placeholder">无封面</div>`;
 
-                    // 修改：已移除数值后的文本单位（抽、个）
                     const html = `
                         <div class="pool-card-item">
                             <div class="pool-card-img-wrapper">
