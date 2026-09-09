@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>如鸢抽卡记录器</title>
+    <title>如鸢招募记录器</title>
     <style>
         :root {
             --bg-dark: #0a0a0a;
@@ -33,12 +33,15 @@
         .stat-val { color: var(--gold-main); font-size: 20px; font-weight: bold; margin-bottom: 4px; }
         .stat-label { color: var(--text-sub); font-size: 12px; }
 
-        /* 卡池标签 (限定池) */
-        .pool-tabs-wrapper { display: none; margin: 15px 15px 0 15px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
+        /* 限定池标签栏容器 (滚动区 + 固定新建按钮) */
+        .pool-nav-container { display: none; align-items: center; margin: 15px 15px 0 15px; gap: 10px; }
+        .pool-tabs-wrapper { flex: 1; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
         .pool-tabs-wrapper::-webkit-scrollbar { display: none; }
-        .pool-tab { display: inline-block; padding: 6px 15px; background: #333; color: #aaa; border-radius: 15px; font-size: 14px; margin-right: 10px; cursor: pointer; }
+        .pool-tab { display: inline-block; padding: 6px 15px; background: #333; color: #aaa; border-radius: 15px; font-size: 14px; margin-right: 8px; cursor: pointer; }
         .pool-tab.active { background: var(--gold-dark); color: #fff; }
-        .pool-tab.add-pool-btn { background: transparent; border: 1px dashed var(--gold-main); color: var(--gold-main); }
+        
+        .add-pool-main-btn { background: transparent; border: 1px dashed var(--gold-main); color: var(--gold-main); padding: 6px 12px; border-radius: 15px; font-size: 13px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .add-pool-main-btn:active { background: var(--gold-dark); color: #fff; }
 
         /* 卡池封面 */
         .pool-cover-container { margin: 10px 15px; text-align: center; display: none; }
@@ -137,9 +140,12 @@
         <div class="tab-btn" onclick="switchMainTab('limited')">限定池记录</div>
     </div>
 
-    <!-- 限定池标签栏 -->
-    <div class="pool-tabs-wrapper" id="poolTabs">
-        <!-- JS 动态生成 -->
+    <!-- 限定池标签栏容器 (滚动标签 + 独立固定新建按钮) -->
+    <div class="pool-nav-container" id="poolNavContainer">
+        <div class="pool-tabs-wrapper" id="poolTabs">
+            <!-- JS 动态生成 -->
+        </div>
+        <button class="add-pool-main-btn" onclick="openAddPoolModal()">+ 新建卡池</button>
     </div>
 
     <!-- 限定池当前选中卡池封面 -->
@@ -264,6 +270,17 @@
             </div>
 
             <div class="form-group">
+                <label>初始UP密探（可添加多个）</label>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <input type="text" class="form-control" id="inputNewUpName" placeholder="输入UP密探名">
+                    <button class="btn btn-primary" style="flex: 0 0 80px; padding: 0; font-size: 14px;" onclick="addTempUpChar()">添加</button>
+                </div>
+                <div class="up-chars-list" id="newPoolUpList" style="min-height: 30px; padding: 6px; background: #000; border-radius: 4px; border: 1px solid #444;">
+                    <span class="up-chars-empty">暂未添加UP密探</span>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label>卡池封面 (可选)</label>
                 <div class="file-upload-wrapper">
                     <div class="file-upload-btn">点击选择卡池图片</div>
@@ -291,9 +308,10 @@
         let currentTab = 'standard'; // 'standard' 或 'limited'
         let currentPoolId = 'all';   // 'all' 或 具体池子ID
 
-        // 临时图片Base64存储
+        // 临时图片Base64存储与新建池临时UP列表
         let tempBase64Avatar = '';
         let tempBase64Banner = '';
+        let tempNewPoolUpChars = [];
 
         // 初始化
         window.onload = () => {
@@ -328,10 +346,10 @@
             event.target.classList.add('active');
             
             if (tab === 'standard') {
-                document.getElementById('poolTabs').style.display = 'none';
+                document.getElementById('poolNavContainer').style.display = 'none';
                 document.getElementById('currentPoolCoverInfo').style.display = 'none';
             } else {
-                document.getElementById('poolTabs').style.display = 'block';
+                document.getElementById('poolNavContainer').style.display = 'flex';
                 switchPoolTab('all');
             }
             renderApp();
@@ -362,7 +380,6 @@
                 html += `<div class="pool-tab ${currentPoolId === pool.id ? 'active' : ''}" onclick="switchPoolTab('${pool.id}')">${pool.name}</div>`;
             });
             
-            html += `<div class="pool-tab add-pool-btn" onclick="openAddPoolModal()">+ 新建卡池</div>`;
             container.innerHTML = html;
 
             const coverContainer = document.getElementById('currentPoolCoverInfo');
@@ -640,7 +657,7 @@
             document.getElementById('previewAvatar').src = '';
             document.getElementById('previewAvatar').style.display = 'none';
 
-            // 更新密探名称自动联想列表 (从所有普池和限定池记录中收集已有密探名)
+            // 更新密探名称自动联想列表
             updateSpyDatalist();
 
             const poolGroup = document.getElementById('formPoolGroup');
@@ -670,10 +687,8 @@
             const name = nameInput.value.trim();
             if (!name) return;
 
-            // 如果当前已经选了临时图片，不覆盖
             if (tempBase64Avatar) return;
 
-            // 在已有记录中寻找同名且带有头像的密探记录
             const allRecords = [...gachaData.standard, ...gachaData.limited];
             const matched = allRecords.find(r => r.name === name && r.avatar);
             
@@ -698,9 +713,42 @@
         function openAddPoolModal() {
             document.getElementById('addPoolModal').classList.add('active');
             document.getElementById('inputPoolName').value = '';
+            document.getElementById('inputNewUpName').value = '';
+            tempNewPoolUpChars = [];
+            renderNewPoolUpList();
             tempBase64Banner = '';
             document.getElementById('previewBanner').src = '';
             document.getElementById('previewBanner').style.display = 'none';
+        }
+
+        // 新建卡池弹窗内添加临时UP角色
+        function addTempUpChar() {
+            const input = document.getElementById('inputNewUpName');
+            const name = input.value.trim();
+            if (!name) return;
+            tempNewPoolUpChars.push(name);
+            input.value = '';
+            renderNewPoolUpList();
+        }
+
+        // 移除新建卡池弹窗内的临时UP角色
+        function removeTempUpChar(index) {
+            tempNewPoolUpChars.splice(index, 1);
+            renderNewPoolUpList();
+        }
+
+        function renderNewPoolUpList() {
+            const listEl = document.getElementById('newPoolUpList');
+            if (tempNewPoolUpChars.length === 0) {
+                listEl.innerHTML = '<span class="up-chars-empty">暂未添加UP密探</span>';
+            } else {
+                listEl.innerHTML = tempNewPoolUpChars.map((name, index) => `
+                    <div class="up-char-tag" style="margin: 2px;">
+                        <span>${name}</span>
+                        <span class="up-char-del" onclick="removeTempUpChar(${index})">×</span>
+                    </div>
+                `).join('');
+            }
         }
 
         function closeModal(id) {
@@ -752,7 +800,7 @@
                 id: poolId,
                 name,
                 cover: tempBase64Banner,
-                upCharacters: []
+                upCharacters: [...tempNewPoolUpChars]
             });
 
             currentPoolId = poolId;
