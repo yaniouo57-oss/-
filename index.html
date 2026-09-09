@@ -26,7 +26,7 @@
         .tab-btn.active { color: var(--gold-main); border-bottom-color: var(--gold-main); }
 
         /* 统计面板 */
-        .stats-panel { margin: 15px; padding: 15px; background: var(--panel-bg); border: 1px solid var(--gold-dark); border-radius: 8px; box-shadow: 0 0 10px rgba(212, 175, 55, 0.1); }
+        .stats-panel { margin: 12px 15px; padding: 15px; background: var(--panel-bg); border: 1px solid var(--gold-dark); border-radius: 8px; box-shadow: 0 0 10px rgba(212, 175, 55, 0.1); }
         .stats-title { color: var(--gold-light); font-size: 14px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
         .stat-item { display: flex; flex-direction: column; }
@@ -45,15 +45,40 @@
         .pool-cover-container img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--gold-dark); }
         .del-pool-btn { margin-top: 5px; color: var(--red-spook); font-size: 12px; background: none; border: 1px solid var(--red-spook); padding: 4px 10px; border-radius: 4px; cursor: pointer; }
 
+        /* UP角色栏样式 */
+        .up-chars-panel { margin: 12px 15px 0 15px; padding: 10px 12px; background: var(--panel-bg); border: 1px solid #333; border-radius: 8px; }
+        .up-chars-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .up-chars-title { color: var(--gold-light); font-size: 13px; font-weight: bold; }
+        .add-up-btn { background: transparent; border: 1px solid var(--gold-main); color: var(--gold-main); font-size: 11px; padding: 2px 8px; border-radius: 10px; cursor: pointer; }
+        .add-up-btn:active { background: var(--gold-dark); color: #fff; }
+        .up-chars-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .up-char-tag { display: inline-flex; align-items: center; background: rgba(212, 175, 55, 0.15); border: 1px solid var(--gold-dark); color: var(--gold-light); padding: 3px 8px; border-radius: 12px; font-size: 12px; }
+        .up-char-del { margin-left: 5px; color: var(--red-spook); cursor: pointer; font-weight: bold; font-size: 13px; }
+        .up-chars-empty { color: var(--text-sub); font-size: 12px; font-style: italic; }
+
         /* 列表区域 */
         .record-list { margin: 15px; }
-        .record-item { display: flex; align-items: center; background: var(--panel-bg); padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid #555; position: relative; }
         
-        /* 稀有度 & 状态样式 */
+        /* 限定池「全部」卡池卡片样式 */
+        .pool-card-item { display: flex; align-items: center; background: var(--panel-bg); border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 12px; }
+        .pool-card-img-wrapper { position: relative; width: 110px; height: 75px; border-radius: 6px; overflow: hidden; background: #2a2a2a; flex-shrink: 0; border: 1px solid var(--gold-dark); }
+        .pool-card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .pool-card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #555; font-size: 12px; }
+        .pool-card-title { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.75); color: var(--gold-light); font-size: 11px; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .pool-card-stats { flex: 1; margin-left: 12px; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+        .pool-card-stat-row { font-size: 12px; color: var(--text-sub); }
+        .pool-card-stat-row span { color: var(--gold-main); font-weight: bold; }
+        
+        .pool-card-edit-btn { background: transparent; border: 1px solid var(--gold-main); color: var(--gold-main); padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; flex-shrink: 0; margin-left: 8px; }
+        .pool-card-edit-btn:active { background: var(--gold-dark); color: #fff; }
+
+        /* 记录列表单项 */
+        .record-item { display: flex; align-items: center; background: var(--panel-bg); padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid #555; position: relative; }
         .record-item.ssr { border-left-color: var(--gold-main); }
         .record-item.spook { border-left-color: var(--red-spook); background-color: var(--red-bg); }
         
-        .avatar-box { width: 50px; height: 50px; border-radius: 25px; background: #333; margin-right: 15px; overflow: hidden; border: 2px solid #555; display: flex; align-items: center; justify-content: center; color: #777; font-size: 12px; }
+        .avatar-box { width: 50px; height: 50px; border-radius: 25px; background: #333; margin-right: 15px; overflow: hidden; border: 2px solid #555; display: flex; align-items: center; justify-content: center; color: #777; font-size: 12px; flex-shrink: 0; }
         .record-item.ssr .avatar-box { border-color: var(--gold-main); }
         .record-item.spook .avatar-box { border-color: var(--red-spook); }
         .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
@@ -101,7 +126,6 @@
         .btn-primary { background: var(--gold-main); color: #000; }
         .btn-secondary { background: #333; color: #fff; }
 
-        /* 隐藏功能 */
         .hidden { display: none !important; }
     </style>
 </head>
@@ -122,6 +146,17 @@
     <div class="pool-cover-container" id="currentPoolCoverInfo">
         <img id="currentPoolImg" src="" alt="卡池封面">
         <button class="del-pool-btn" onclick="deleteCurrentPool()">删除该卡池及所有记录</button>
+    </div>
+
+    <!-- 单个限定池 UP角色展示区 -->
+    <div class="up-chars-panel hidden" id="upCharsPanel">
+        <div class="up-chars-header">
+            <span class="up-chars-title">UP 绝密角色</span>
+            <button class="add-up-btn" onclick="addUpCharacter()">+ 补充UP角色</button>
+        </div>
+        <div class="up-chars-list" id="upCharsList">
+            <!-- JS 动态生成 -->
+        </div>
     </div>
 
     <!-- 统计面板 1: 普池 / 限定池总计 -->
@@ -149,7 +184,7 @@
         </div>
     </div>
 
-    <!-- 记录列表 -->
+    <!-- 列表区域 -->
     <div class="record-list" id="recordList">
         <!-- JS 动态生成 -->
     </div>
@@ -228,6 +263,11 @@
             </div>
 
             <div class="form-group">
+                <label>UP 绝密角色 (可选，多个用逗号/空格隔开)</label>
+                <input type="text" class="form-control" id="inputPoolUpChars" placeholder="例如：王粲, 陈登">
+            </div>
+
+            <div class="form-group">
                 <label>卡池封面 (可选)</label>
                 <div class="file-upload-wrapper">
                     <div class="file-upload-btn">点击选择卡池图片</div>
@@ -247,7 +287,7 @@
         // 数据结构定义
         let gachaData = {
             standard: [], // 普池记录
-            pools: [],    // 限定卡池列表
+            pools: [],    // 限定卡池列表 [{id, name, cover, upCharacters: []}]
             limited: []   // 限定池记录
         };
 
@@ -271,7 +311,6 @@
             if (saved) {
                 try {
                     gachaData = JSON.parse(saved);
-                    // 兼容旧版本数据结构
                     if (!gachaData.pools) gachaData.pools = [];
                     if (!gachaData.limited) gachaData.limited = [];
                     if (!gachaData.standard) gachaData.standard = [];
@@ -297,7 +336,6 @@
                 document.getElementById('currentPoolCoverInfo').style.display = 'none';
             } else {
                 document.getElementById('poolTabs').style.display = 'block';
-                // 默认选中全部
                 switchPoolTab('all');
             }
             renderApp();
@@ -312,38 +350,93 @@
         // 核心渲染函数
         function renderApp() {
             renderPoolTabs();
+            renderUpCharacters();
             renderStats();
             renderList();
         }
 
-        // 渲染限定池标签
+        // 渲染限定池标签 (最新创建的卡池排在前面)
         function renderPoolTabs() {
             if (currentTab === 'standard') return;
             
             const container = document.getElementById('poolTabs');
             let html = `<div class="pool-tab ${currentPoolId === 'all' ? 'active' : ''}" onclick="switchPoolTab('all')">全部</div>`;
             
-            gachaData.pools.forEach(pool => {
+            // 使用 reverse 让较新的卡池排在前面
+            [...gachaData.pools].reverse().forEach(pool => {
                 html += `<div class="pool-tab ${currentPoolId === pool.id ? 'active' : ''}" onclick="switchPoolTab('${pool.id}')">${pool.name}</div>`;
             });
             
             html += `<div class="pool-tab add-pool-btn" onclick="openAddPoolModal()">+ 新建卡池</div>`;
             container.innerHTML = html;
 
-            // 处理当前卡池封面
+            // 处理当前卡池封面 (单卡池视图)
             const coverContainer = document.getElementById('currentPoolCoverInfo');
             if (currentPoolId !== 'all') {
                 const pool = gachaData.pools.find(p => p.id === currentPoolId);
                 if (pool && pool.cover) {
                     document.getElementById('currentPoolImg').src = pool.cover;
-                    coverContainer.style.display = 'block';
+                    document.getElementById('currentPoolImg').style.display = 'block';
                 } else {
-                    document.getElementById('currentPoolImg').src = '';
-                    coverContainer.style.display = 'block'; // 仍然显示，为了显示删除按钮
+                    document.getElementById('currentPoolImg').style.display = 'none';
                 }
+                coverContainer.style.display = 'block';
             } else {
                 coverContainer.style.display = 'none';
             }
+        }
+
+        // 渲染单限定池UP角色列表
+        function renderUpCharacters() {
+            const upPanel = document.getElementById('upCharsPanel');
+            const upList = document.getElementById('upCharsList');
+
+            if (currentTab === 'limited' && currentPoolId !== 'all') {
+                const pool = gachaData.pools.find(p => p.id === currentPoolId);
+                if (pool) {
+                    if (!pool.upCharacters) pool.upCharacters = [];
+                    
+                    if (pool.upCharacters.length === 0) {
+                        upList.innerHTML = '<span class="up-chars-empty">创建时未设定，可点击右上角补充</span>';
+                    } else {
+                        upList.innerHTML = pool.upCharacters.map((charName, index) => `
+                            <div class="up-char-tag">
+                                <span>${charName}</span>
+                                <span class="up-char-del" onclick="removeUpCharacter(${index})">×</span>
+                            </div>
+                        `).join('');
+                    }
+                    upPanel.classList.remove('hidden');
+                    return;
+                }
+            }
+            upPanel.classList.add('hidden');
+        }
+
+        // 补充UP角色
+        function addUpCharacter() {
+            if (currentPoolId === 'all') return;
+            const pool = gachaData.pools.find(p => p.id === currentPoolId);
+            if (!pool) return;
+
+            const name = prompt('请输入补充的UP角色名称：');
+            if (name && name.trim()) {
+                if (!pool.upCharacters) pool.upCharacters = [];
+                pool.upCharacters.push(name.trim());
+                saveData();
+                renderApp();
+            }
+        }
+
+        // 删除UP角色
+        function removeUpCharacter(index) {
+            if (currentPoolId === 'all') return;
+            const pool = gachaData.pools.find(p => p.id === currentPoolId);
+            if (!pool || !pool.upCharacters) return;
+
+            pool.upCharacters.splice(index, 1);
+            saveData();
+            renderApp();
         }
 
         // 计算数值辅助函数
@@ -359,11 +452,13 @@
 
         // 渲染统计面板
         function renderStats() {
+            const mainStats = document.getElementById('mainStats');
             const mainTitle = document.getElementById('mainStatsTitle');
             const limitedStats = document.querySelectorAll('.limited-stat');
             const subStats = document.getElementById('subStats');
 
             if (currentTab === 'standard') {
+                mainStats.classList.remove('hidden');
                 mainTitle.innerText = '普池总计';
                 limitedStats.forEach(el => el.classList.add('hidden'));
                 subStats.classList.add('hidden');
@@ -374,52 +469,88 @@
                 document.getElementById('avgSsr').innerText = stats.avgSsr;
 
             } else {
-                mainTitle.innerText = '限定池总计 (所有)';
-                limitedStats.forEach(el => el.classList.remove('hidden'));
-                
-                // 总体统计
-                const allStats = calcStats(gachaData.limited);
-                document.getElementById('totalPulls').innerText = allStats.totalPulls;
-                document.getElementById('totalSsr').innerText = allStats.totalSsr;
-                document.getElementById('avgSsr').innerText = allStats.avgSsr;
-                document.getElementById('totalUp').innerText = allStats.totalUp;
-                document.getElementById('upRate').innerText = allStats.upRate;
+                if (currentPoolId === 'all') {
+                    // 「全部」页面：只显示限定池全局统计
+                    mainStats.classList.remove('hidden');
+                    subStats.classList.add('hidden');
 
-                // 单独池子统计
-                if (currentPoolId !== 'all') {
+                    mainTitle.innerText = '限定池总计 (所有)';
+                    limitedStats.forEach(el => el.classList.remove('hidden'));
+                    
+                    const allStats = calcStats(gachaData.limited);
+                    document.getElementById('totalPulls').innerText = allStats.totalPulls;
+                    document.getElementById('totalSsr').innerText = allStats.totalSsr;
+                    document.getElementById('avgSsr').innerText = allStats.avgSsr;
+                    document.getElementById('totalUp').innerText = allStats.totalUp;
+                    document.getElementById('upRate').innerText = allStats.upRate;
+                } else {
+                    // 具体限定池页面：仅显示该单池专属统计
+                    mainStats.classList.add('hidden');
+                    subStats.classList.remove('hidden');
+
                     const poolRecords = gachaData.limited.filter(r => r.poolId === currentPoolId);
                     const subS = calcStats(poolRecords);
                     const pool = gachaData.pools.find(p => p.id === currentPoolId);
                     
-                    document.getElementById('subStatsTitle').innerText = `【${pool.name}】卡池统计`;
+                    document.getElementById('subStatsTitle').innerText = `【${pool ? pool.name : ''}】卡池统计`;
                     document.getElementById('subTotalPulls').innerText = subS.totalPulls;
                     document.getElementById('subTotalSsr').innerText = subS.totalSsr;
                     document.getElementById('subAvgSsr').innerText = subS.avgSsr;
                     document.getElementById('subTotalUp').innerText = subS.totalUp;
                     document.getElementById('subUpRate').innerText = subS.upRate;
-                    
-                    subStats.classList.remove('hidden');
-                } else {
-                    subStats.classList.add('hidden');
                 }
             }
         }
 
-        // 渲染记录列表
+        // 渲染列表区域 (最新创建的卡池排在上面)
         function renderList() {
             const container = document.getElementById('recordList');
             container.innerHTML = '';
 
+            // 限定池 -> 「全部」页面：渲染限定卡池列表
+            if (currentTab === 'limited' && currentPoolId === 'all') {
+                if (gachaData.pools.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; color:#666; margin-top:30px;">暂无限定卡池，点击上方“+ 新建卡池”添加</div>';
+                    return;
+                }
+
+                // 翻转数组，确保最新新建的卡池靠前显示
+                [...gachaData.pools].reverse().forEach(pool => {
+                    const poolRecords = gachaData.limited.filter(r => r.poolId === pool.id);
+                    const stats = calcStats(poolRecords);
+
+                    const imgHtml = pool.cover 
+                        ? `<img src="${pool.cover}" alt="封面">` 
+                        : `<div class="pool-card-img-placeholder">无封面</div>`;
+
+                    const html = `
+                        <div class="pool-card-item">
+                            <div class="pool-card-img-wrapper">
+                                ${imgHtml}
+                                <div class="pool-card-title">${pool.name}</div>
+                            </div>
+                            <div class="pool-card-stats">
+                                <div class="pool-card-stat-row">总次数：<span>${stats.totalPulls}</span> 抽</div>
+                                <div class="pool-card-stat-row">总绝密：<span>${stats.totalSsr}</span> 个</div>
+                                <div class="pool-card-stat-row">平均出绝密：<span>${stats.avgSsr}</span> 抽</div>
+                                <div class="pool-card-stat-row">小保底不歪率：<span>${stats.upRate}</span></div>
+                            </div>
+                            <button class="pool-card-edit-btn" onclick="switchPoolTab('${pool.id}')">编辑</button>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+                return;
+            }
+
+            // 普池 / 特定限定池 -> 渲染抽卡记录列表
             let records = [];
             if (currentTab === 'standard') {
                 records = [...gachaData.standard];
             } else {
-                records = currentPoolId === 'all' 
-                    ? [...gachaData.limited] 
-                    : gachaData.limited.filter(r => r.poolId === currentPoolId);
+                records = gachaData.limited.filter(r => r.poolId === currentPoolId);
             }
 
-            // 倒序显示（最新在前）
             records.reverse().forEach(record => {
                 const isSSR = record.rarity === '绝密';
                 const isSpook = currentTab === 'limited' && isSSR && !record.isUp;
@@ -434,12 +565,6 @@
                     else tags += '<span class="tag tag-spook">歪</span>';
                 }
 
-                let poolNameText = '';
-                if (currentTab === 'limited' && currentPoolId === 'all') {
-                    const pool = gachaData.pools.find(p => p.id === record.poolId);
-                    poolNameText = pool ? `[${pool.name}] ` : '';
-                }
-
                 const avatarHtml = record.avatar 
                     ? `<img src="${record.avatar}">` 
                     : (isSSR ? '绝密' : '密探');
@@ -449,7 +574,7 @@
                         <div class="avatar-box">${avatarHtml}</div>
                         <div class="record-info">
                             <div class="char-name">${record.name} ${tags}</div>
-                            <div class="record-meta">${poolNameText}${record.rarity}</div>
+                            <div class="record-meta">${record.rarity}</div>
                         </div>
                         <div class="pull-count">第 ${record.pulls} 抽</div>
                         <button class="del-btn" onclick="deleteRecord('${record.id}')">×</button>
@@ -458,7 +583,7 @@
                 container.innerHTML += html;
             });
 
-            if(records.length === 0) {
+            if (records.length === 0) {
                 container.innerHTML = '<div style="text-align:center; color:#666; margin-top:30px;">暂无记录</div>';
             }
         }
@@ -517,23 +642,21 @@
             document.getElementById('addModal').classList.add('active');
             document.getElementById('addModalTitle').innerText = currentTab === 'standard' ? '添加普池记录' : '添加限定池记录';
             
-            // 清空表单
             document.getElementById('inputName').value = '';
             document.getElementById('inputPulls').value = '';
             document.getElementById('inputRarity').value = '绝密';
             document.getElementById('inputIsUp').value = 'true';
             
-            // 图片预览清空
             tempBase64Avatar = '';
             document.getElementById('previewAvatar').src = '';
             document.getElementById('previewAvatar').style.display = 'none';
 
-            // 动态显示所属卡池
             const poolGroup = document.getElementById('formPoolGroup');
             if (currentTab === 'limited') {
                 poolGroup.classList.remove('hidden');
                 const select = document.getElementById('inputPoolId');
-                select.innerHTML = gachaData.pools.map(p => `<option value="${p.id}" ${p.id === currentPoolId ? 'selected':''}>${p.name}</option>`).join('');
+                const targetPoolId = currentPoolId === 'all' ? (gachaData.pools[gachaData.pools.length - 1] ? gachaData.pools[gachaData.pools.length - 1].id : '') : currentPoolId;
+                select.innerHTML = [...gachaData.pools].reverse().map(p => `<option value="${p.id}" ${p.id === targetPoolId ? 'selected':''}>${p.name}</option>`).join('');
             } else {
                 poolGroup.classList.add('hidden');
             }
@@ -544,7 +667,6 @@
         function checkRarity() {
             const rarity = document.getElementById('inputRarity').value;
             const upGroup = document.getElementById('formUpGroup');
-            // 只有限定池且是绝密才显示 UP选项
             if (currentTab === 'limited' && rarity === '绝密') {
                 upGroup.classList.remove('hidden');
             } else {
@@ -555,6 +677,7 @@
         function openAddPoolModal() {
             document.getElementById('addPoolModal').classList.add('active');
             document.getElementById('inputPoolName').value = '';
+            document.getElementById('inputPoolUpChars').value = '';
             tempBase64Banner = '';
             document.getElementById('previewBanner').src = '';
             document.getElementById('previewBanner').style.display = 'none';
@@ -604,20 +727,25 @@
                 return;
             }
 
+            // 解析 UP 角色文本（支持逗号、中文逗号或空格分割）
+            const upCharsRaw = document.getElementById('inputPoolUpChars').value.trim();
+            const upCharacters = upCharsRaw ? upCharsRaw.split(/[,，\s]+/).filter(Boolean) : [];
+
             const poolId = 'pool_' + Date.now();
             gachaData.pools.push({
                 id: poolId,
                 name,
-                cover: tempBase64Banner
+                cover: tempBase64Banner,
+                upCharacters: upCharacters
             });
 
-            currentPoolId = poolId; // 自动选中新建的池子
+            currentPoolId = poolId;
             saveData();
             closeModal('addPoolModal');
             renderApp();
         }
 
-        // --- 图片处理压缩 (防止localStorage爆满) ---
+        // --- 图片处理压缩 ---
         function handleImageUpload(event, previewId, maxSize) {
             const file = event.target.files[0];
             if (!file) return;
@@ -630,7 +758,6 @@
                     let width = img.width;
                     let height = img.height;
 
-                    // 按比例缩放
                     if (width > maxSize || height > maxSize) {
                         if (width > height) {
                             height = Math.round((height * maxSize) / width);
@@ -646,7 +773,6 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    // 压缩为 jpeg, 质量 0.7
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
                     
                     document.getElementById(previewId).src = dataUrl;
@@ -702,7 +828,7 @@
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; // 清空选择，允许重复导入同一文件
+            event.target.value = '';
         }
     </script>
 </body>
