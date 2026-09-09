@@ -62,7 +62,6 @@
         /* 限定池「全部」卡池卡片样式 */
         .pool-card-item { display: flex; align-items: center; background: var(--panel-bg); border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 12px; }
         .pool-card-img-wrapper { position: relative; width: 150px; height: 75px; border-radius: 6px; overflow: hidden; background: #2a2a2a; flex-shrink: 0; border: 1px solid var(--gold-dark); }
-        /* 修改：使用 object-position: left center 让图片从左边开始显示 */
         .pool-card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; object-position: left center; }
         .pool-card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #555; font-size: 12px; }
         .pool-card-title { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.75); color: var(--gold-light); font-size: 11px; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -152,8 +151,8 @@
     <!-- 单个限定池 UP角色展示区 -->
     <div class="up-chars-panel hidden" id="upCharsPanel">
         <div class="up-chars-header">
-            <span class="up-chars-title">UP 绝密角色</span>
-            <button class="add-up-btn" onclick="addUpCharacter()">+ 添加UP角色</button>
+            <span class="up-chars-title">UP 绝密密探</span>
+            <button class="add-up-btn" onclick="addUpCharacter()">+ 添加UP密探</button>
         </div>
         <div class="up-chars-list" id="upCharsList">
             <!-- JS 动态生成 -->
@@ -212,8 +211,9 @@
             </div>
             
             <div class="form-group">
-                <label>角色名</label>
-                <input type="text" class="form-control" id="inputName" placeholder="输入角色名">
+                <label>密探名</label>
+                <input type="text" class="form-control" id="inputName" placeholder="输入密探名（如：王粲）" list="spyNameList" onblur="checkAutoAvatar()" oninput="checkAutoAvatar()">
+                <datalist id="spyNameList"></datalist>
             </div>
 
             <div class="form-group">
@@ -225,7 +225,7 @@
             </div>
 
             <div class="form-group hidden" id="formUpGroup">
-                <label>是否为UP角色？（歪了选否）</label>
+                <label>是否为UP密探？（歪了选否）</label>
                 <select class="form-control" id="inputIsUp">
                     <option value="true">是 (UP)</option>
                     <option value="false">否 (歪了)</option>
@@ -238,9 +238,9 @@
             </div>
 
             <div class="form-group">
-                <label>角色头像 (可选，本地存储自动压缩)</label>
+                <label>密探头像 (历史已添加会自动匹配)</label>
                 <div class="file-upload-wrapper">
-                    <div class="file-upload-btn">点击选择图片</div>
+                    <div class="file-upload-btn">点击选择或更换图片</div>
                     <input type="file" accept="image/*" onchange="handleImageUpload(event, 'previewAvatar', 150)">
                 </div>
                 <img id="previewAvatar" class="image-preview" src="">
@@ -358,7 +358,6 @@
             const container = document.getElementById('poolTabs');
             let html = `<div class="pool-tab ${currentPoolId === 'all' ? 'active' : ''}" onclick="switchPoolTab('all')">全部</div>`;
             
-            // 使用 reverse 让较新的卡池排在前面
             [...gachaData.pools].reverse().forEach(pool => {
                 html += `<div class="pool-tab ${currentPoolId === pool.id ? 'active' : ''}" onclick="switchPoolTab('${pool.id}')">${pool.name}</div>`;
             });
@@ -366,7 +365,6 @@
             html += `<div class="pool-tab add-pool-btn" onclick="openAddPoolModal()">+ 新建卡池</div>`;
             container.innerHTML = html;
 
-            // 处理当前卡池封面 (单卡池视图)
             const coverContainer = document.getElementById('currentPoolCoverInfo');
             if (currentPoolId !== 'all') {
                 const pool = gachaData.pools.find(p => p.id === currentPoolId);
@@ -393,7 +391,7 @@
                     if (!pool.upCharacters) pool.upCharacters = [];
                     
                     if (pool.upCharacters.length === 0) {
-                        upList.innerHTML = '<span class="up-chars-empty">暂未添加UP角色，点击右上角添加</span>';
+                        upList.innerHTML = '<span class="up-chars-empty">暂未添加UP密探，点击右上角添加</span>';
                     } else {
                         upList.innerHTML = pool.upCharacters.map((charName, index) => `
                             <div class="up-char-tag">
@@ -415,7 +413,7 @@
             const pool = gachaData.pools.find(p => p.id === currentPoolId);
             if (!pool) return;
 
-            const name = prompt('请输入UP角色名称（如：王粲）：');
+            const name = prompt('请输入UP密探名称（如：王粲）：');
             if (name && name.trim()) {
                 if (!pool.upCharacters) pool.upCharacters = [];
                 pool.upCharacters.push(name.trim());
@@ -466,7 +464,6 @@
 
             } else {
                 if (currentPoolId === 'all') {
-                    // 「全部」页面：只显示限定池全局统计
                     mainStats.classList.remove('hidden');
                     subStats.classList.add('hidden');
 
@@ -480,7 +477,6 @@
                     document.getElementById('totalUp').innerText = allStats.totalUp;
                     document.getElementById('upRate').innerText = allStats.upRate;
                 } else {
-                    // 具体限定池页面：仅显示该单池专属统计
                     mainStats.classList.add('hidden');
                     subStats.classList.remove('hidden');
 
@@ -498,19 +494,17 @@
             }
         }
 
-        // 渲染列表区域 (最新创建的卡池排在上面)
+        // 渲染列表区域
         function renderList() {
             const container = document.getElementById('recordList');
             container.innerHTML = '';
 
-            // 限定池 -> 「全部」页面：渲染限定卡池列表
             if (currentTab === 'limited' && currentPoolId === 'all') {
                 if (gachaData.pools.length === 0) {
                     container.innerHTML = '<div style="text-align:center; color:#666; margin-top:30px;">暂无限定卡池，点击上方“+ 新建卡池”添加</div>';
                     return;
                 }
 
-                // 翻转数组，确保最新新建的卡池靠前显示
                 [...gachaData.pools].reverse().forEach(pool => {
                     const poolRecords = gachaData.limited.filter(r => r.poolId === pool.id);
                     const stats = calcStats(poolRecords);
@@ -539,7 +533,6 @@
                 return;
             }
 
-            // 普池 / 特定限定池 -> 渲染抽卡记录列表
             let records = [];
             if (currentTab === 'standard') {
                 records = [...gachaData.standard];
@@ -647,6 +640,9 @@
             document.getElementById('previewAvatar').src = '';
             document.getElementById('previewAvatar').style.display = 'none';
 
+            // 更新密探名称自动联想列表 (从所有普池和限定池记录中收集已有密探名)
+            updateSpyDatalist();
+
             const poolGroup = document.getElementById('formPoolGroup');
             if (currentTab === 'limited') {
                 poolGroup.classList.remove('hidden');
@@ -658,6 +654,35 @@
             }
 
             checkRarity();
+        }
+
+        // 更新密探自动联想候选列表
+        function updateSpyDatalist() {
+            const datalist = document.getElementById('spyNameList');
+            const allRecords = [...gachaData.standard, ...gachaData.limited];
+            const uniqueNames = [...new Set(allRecords.map(r => r.name).filter(Boolean))];
+            datalist.innerHTML = uniqueNames.map(name => `<option value="${name}">`).join('');
+        }
+
+        // 检查并自动匹配头像
+        function checkAutoAvatar() {
+            const nameInput = document.getElementById('inputName');
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            // 如果当前已经选了临时图片，不覆盖
+            if (tempBase64Avatar) return;
+
+            // 在已有记录中寻找同名且带有头像的密探记录
+            const allRecords = [...gachaData.standard, ...gachaData.limited];
+            const matched = allRecords.find(r => r.name === name && r.avatar);
+            
+            if (matched && matched.avatar) {
+                tempBase64Avatar = matched.avatar;
+                const preview = document.getElementById('previewAvatar');
+                preview.src = matched.avatar;
+                preview.style.display = 'block';
+            }
         }
 
         function checkRarity() {
@@ -689,7 +714,7 @@
             const pulls = parseInt(document.getElementById('inputPulls').value);
             
             if (!name || isNaN(pulls) || pulls <= 0) {
-                alert('请填写正确的角色名和抽数！');
+                alert('请填写正确的密探名和抽数！');
                 return;
             }
 
