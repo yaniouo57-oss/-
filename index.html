@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>如鸢抽卡记录器</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --panel-bg: #1c1c1c;
+            --gold-main: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-dark: #997a00;
+            --text-main: #e0e0e0;
+            --text-sub: #888;
+            --red-spook: #ff4c4c;
+            --red-bg: rgba(255, 76, 76, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-dark); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding-bottom: 80px; }
+
+        /* 主Tab */
+        .main-tabs { display: flex; background-color: var(--panel-bg); position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .tab-btn { flex: 1; padding: 15px 0; text-align: center; color: var(--text-sub); font-size: 16px; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
+        .tab-btn.active { color: var(--gold-main); border-bottom-color: var(--gold-main); }
+
+        /* 统计面板 */
+        .stats-panel { margin: 15px; padding: 15px; background: var(--panel-bg); border: 1px solid var(--gold-dark); border-radius: 8px; box-shadow: 0 0 10px rgba(212, 175, 55, 0.1); }
+        .stats-title { color: var(--gold-light); font-size: 14px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
+        .stat-item { display: flex; flex-direction: column; }
+        .stat-val { color: var(--gold-main); font-size: 20px; font-weight: bold; margin-bottom: 4px; }
+        .stat-label { color: var(--text-sub); font-size: 12px; }
+
+        /* 卡池标签 (限定池) */
+        .pool-tabs-wrapper { display: none; margin: 15px 15px 0 15px; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
+        .pool-tabs-wrapper::-webkit-scrollbar { display: none; }
+        .pool-tab { display: inline-block; padding: 6px 15px; background: #333; color: #aaa; border-radius: 15px; font-size: 14px; margin-right: 10px; cursor: pointer; }
+        .pool-tab.active { background: var(--gold-dark); color: #fff; }
+        .pool-tab.add-pool-btn { background: transparent; border: 1px dashed var(--gold-main); color: var(--gold-main); }
+
+        /* 卡池封面 */
+        .pool-cover-container { margin: 10px 15px; text-align: center; display: none; }
+        .pool-cover-container img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--gold-dark); }
+        .del-pool-btn { margin-top: 5px; color: var(--red-spook); font-size: 12px; background: none; border: 1px solid var(--red-spook); padding: 4px 10px; border-radius: 4px; cursor: pointer; }
+
+        /* 列表区域 */
+        .record-list { margin: 15px; }
+        .record-item { display: flex; align-items: center; background: var(--panel-bg); padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid #555; position: relative; }
+        
+        /* 稀有度 & 状态样式 */
+        .record-item.ssr { border-left-color: var(--gold-main); }
+        .record-item.spook { border-left-color: var(--red-spook); background-color: var(--red-bg); }
+        
+        .avatar-box { width: 50px; height: 50px; border-radius: 25px; background: #333; margin-right: 15px; overflow: hidden; border: 2px solid #555; display: flex; align-items: center; justify-content: center; color: #777; font-size: 12px; }
+        .record-item.ssr .avatar-box { border-color: var(--gold-main); }
+        .record-item.spook .avatar-box { border-color: var(--red-spook); }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .record-info { flex: 1; }
+        .char-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; color: var(--text-main); }
+        .record-item.spook .char-name { color: var(--red-spook); }
+        .record-meta { font-size: 12px; color: var(--text-sub); }
+        
+        .pull-count { font-size: 18px; font-weight: bold; color: var(--gold-main); margin-right: 15px; }
+        .record-item.spook .pull-count { color: var(--red-spook); }
+        
+        .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: normal; vertical-align: middle; }
+        .tag-up { background: var(--gold-main); color: #000; }
+        .tag-spook { background: var(--red-spook); color: #fff; }
+
+        .del-btn { color: #888; font-size: 20px; background: none; border: none; padding: 5px; cursor: pointer; }
+
+        /* 底部操作区 & FAB */
+        .bottom-actions { position: fixed; bottom: 0; left: 0; width: 100%; background: #111; padding: 10px; display: flex; justify-content: space-around; border-top: 1px solid #333; z-index: 10; }
+        .bottom-btn { background: #333; color: #ccc; border: none; padding: 8px 15px; border-radius: 4px; font-size: 14px; cursor: pointer; }
+        .bottom-btn.clear-btn { background: #4a1919; color: #ff8888; }
+        
+        .fab { position: fixed; right: 20px; bottom: 70px; width: 56px; height: 56px; background: var(--gold-main); color: #000; border-radius: 28px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4); border: none; cursor: pointer; z-index: 20; }
+
+        /* 弹窗 (Modal) */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--panel-bg); width: 90%; max-width: 400px; padding: 20px; border-radius: 12px; border: 1px solid var(--gold-dark); position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-title { color: var(--gold-main); margin-bottom: 20px; font-size: 18px; text-align: center; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; color: var(--text-sub); font-size: 14px; margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 10px; background: #000; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 16px; }
+        .form-control:focus { outline: none; border-color: var(--gold-main); }
+        
+        .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+        .file-upload-btn { border: 1px dashed var(--gold-dark); color: var(--gold-light); background: #222; padding: 10px; text-align: center; border-radius: 4px; display: block; }
+        .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+        .image-preview { width: 60px; height: 60px; margin-top: 10px; border-radius: 4px; object-fit: cover; display: none; border: 1px solid #555; }
+        .banner-preview { width: 100%; height: 80px; margin-top: 10px; border-radius: 4px; object-fit: cover; display: none; border: 1px solid #555; }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-primary { background: var(--gold-main); color: #000; }
+        .btn-secondary { background: #333; color: #fff; }
+
+        /* 隐藏功能 */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- 主Tab -->
+    <div class="main-tabs">
+        <div class="tab-btn active" onclick="switchMainTab('standard')">普池记录</div>
+        <div class="tab-btn" onclick="switchMainTab('limited')">限定池记录</div>
+    </div>
+
+    <!-- 限定池标签栏 -->
+    <div class="pool-tabs-wrapper" id="poolTabs">
+        <!-- JS 动态生成 -->
+    </div>
+
+    <!-- 限定池当前选中卡池封面 -->
+    <div class="pool-cover-container" id="currentPoolCoverInfo">
+        <img id="currentPoolImg" src="" alt="卡池封面">
+        <button class="del-pool-btn" onclick="deleteCurrentPool()">删除该卡池及所有记录</button>
+    </div>
+
+    <!-- 统计面板 1: 普池 / 限定池总计 -->
+    <div class="stats-panel" id="mainStats">
+        <div class="stats-title" id="mainStatsTitle">普池总计</div>
+        <div class="stats-grid">
+            <div class="stat-item"><span class="stat-val" id="totalPulls">0</span><span class="stat-label">总次数</span></div>
+            <div class="stat-item"><span class="stat-val" id="totalSsr">0</span><span class="stat-label">绝密数</span></div>
+            <div class="stat-item"><span class="stat-val" id="avgSsr">0.0</span><span class="stat-label">平均出绝密</span></div>
+            <!-- 下面两项仅限定池总计显示 -->
+            <div class="stat-item limited-stat hidden"><span class="stat-val" id="totalUp">0</span><span class="stat-label">UP总数</span></div>
+            <div class="stat-item limited-stat hidden"><span class="stat-val" id="upRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
+        </div>
+    </div>
+
+    <!-- 统计面板 2: 单个限定池统计 -->
+    <div class="stats-panel hidden" id="subStats">
+        <div class="stats-title" id="subStatsTitle">当前卡池统计</div>
+        <div class="stats-grid">
+            <div class="stat-item"><span class="stat-val" id="subTotalPulls">0</span><span class="stat-label">总次数</span></div>
+            <div class="stat-item"><span class="stat-val" id="subTotalSsr">0</span><span class="stat-label">绝密数</span></div>
+            <div class="stat-item"><span class="stat-val" id="subAvgSsr">0.0</span><span class="stat-label">平均出绝密</span></div>
+            <div class="stat-item"><span class="stat-val" id="subTotalUp">0</span><span class="stat-label">UP数</span></div>
+            <div class="stat-item"><span class="stat-val" id="subUpRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
+        </div>
+    </div>
+
+    <!-- 记录列表 -->
+    <div class="record-list" id="recordList">
+        <!-- JS 动态生成 -->
+    </div>
+
+    <!-- 悬浮添加按钮 -->
+    <button class="fab" onclick="openAddModal()">+</button>
+
+    <!-- 底部功能 -->
+    <div class="bottom-actions">
+        <button class="bottom-btn" onclick="exportData()">导出备份(JSON)</button>
+        <button class="bottom-btn" onclick="document.getElementById('importFile').click()">导入备份</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+        <button class="bottom-btn clear-btn" onclick="clearCurrentRecords()">清空当前显示</button>
+    </div>
+
+    <!-- 添加记录弹窗 -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal-content">
+            <div class="modal-title" id="addModalTitle">添加普池记录</div>
+            
+            <div class="form-group hidden" id="formPoolGroup">
+                <label>所属卡池</label>
+                <select class="form-control" id="inputPoolId"></select>
+            </div>
+            
+            <div class="form-group">
+                <label>角色名</label>
+                <input type="text" class="form-control" id="inputName" placeholder="输入角色名">
+            </div>
+
+            <div class="form-group">
+                <label>稀有度</label>
+                <select class="form-control" id="inputRarity" onchange="checkRarity()">
+                    <option value="绝密">绝密 (SSR)</option>
+                    <option value="密探">密探 (SR/R)</option>
+                </select>
+            </div>
+
+            <div class="form-group hidden" id="formUpGroup">
+                <label>是否为UP角色？（歪了选否）</label>
+                <select class="form-control" id="inputIsUp">
+                    <option value="true">是 (UP)</option>
+                    <option value="false">否 (歪了)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>第几抽出？</label>
+                <input type="number" class="form-control" id="inputPulls" placeholder="例如：10" min="1">
+            </div>
+
+            <div class="form-group">
+                <label>角色头像 (可选，本地存储自动压缩)</label>
+                <div class="file-upload-wrapper">
+                    <div class="file-upload-btn">点击选择图片</div>
+                    <input type="file" accept="image/*" onchange="handleImageUpload(event, 'previewAvatar', 150)">
+                </div>
+                <img id="previewAvatar" class="image-preview" src="">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="closeModal('addModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveRecord()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建卡池弹窗 -->
+    <div class="modal-overlay" id="addPoolModal">
+        <div class="modal-content">
+            <div class="modal-title">新建限定池</div>
+            
+            <div class="form-group">
+                <label>卡池名称</label>
+                <input type="text" class="form-control" id="inputPoolName" placeholder="例如：王粲/陈登 轮换池">
+            </div>
+
+            <div class="form-group">
+                <label>卡池封面 (可选)</label>
+                <div class="file-upload-wrapper">
+                    <div class="file-upload-btn">点击选择卡池图片</div>
+                    <input type="file" accept="image/*" onchange="handleImageUpload(event, 'previewBanner', 400)">
+                </div>
+                <img id="previewBanner" class="banner-preview" src="">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="closeModal('addPoolModal')">取消</button>
+                <button class="btn btn-primary" onclick="savePool()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 数据结构定义
+        let gachaData = {
+            standard: [], // 普池记录
+            pools: [],    // 限定卡池列表
+            limited: []   // 限定池记录
+        };
+
+        // 当前状态
+        let currentTab = 'standard'; // 'standard' 或 'limited'
+        let currentPoolId = 'all';   // 'all' 或 具体池子ID
+
+        // 临时图片Base64存储
+        let tempBase64Avatar = '';
+        let tempBase64Banner = '';
+
+        // 初始化
+        window.onload = () => {
+            loadData();
+            renderApp();
+        };
+
+        // 从 LocalStorage 加载数据
+        function loadData() {
+            const saved = localStorage.getItem('ruyuan_gacha_data');
+            if (saved) {
+                try {
+                    gachaData = JSON.parse(saved);
+                    // 兼容旧版本数据结构
+                    if (!gachaData.pools) gachaData.pools = [];
+                    if (!gachaData.limited) gachaData.limited = [];
+                    if (!gachaData.standard) gachaData.standard = [];
+                } catch (e) {
+                    console.error('数据解析失败', e);
+                }
+            }
+        }
+
+        // 保存到 LocalStorage
+        function saveData() {
+            localStorage.setItem('ruyuan_gacha_data', JSON.stringify(gachaData));
+        }
+
+        // 切换主Tab
+        function switchMainTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tab === 'standard') {
+                document.getElementById('poolTabs').style.display = 'none';
+                document.getElementById('currentPoolCoverInfo').style.display = 'none';
+            } else {
+                document.getElementById('poolTabs').style.display = 'block';
+                // 默认选中全部
+                switchPoolTab('all');
+            }
+            renderApp();
+        }
+
+        // 切换限定池内Tab
+        function switchPoolTab(poolId) {
+            currentPoolId = poolId;
+            renderApp();
+        }
+
+        // 核心渲染函数
+        function renderApp() {
+            renderPoolTabs();
+            renderStats();
+            renderList();
+        }
+
+        // 渲染限定池标签
+        function renderPoolTabs() {
+            if (currentTab === 'standard') return;
+            
+            const container = document.getElementById('poolTabs');
+            let html = `<div class="pool-tab ${currentPoolId === 'all' ? 'active' : ''}" onclick="switchPoolTab('all')">全部</div>`;
+            
+            gachaData.pools.forEach(pool => {
+                html += `<div class="pool-tab ${currentPoolId === pool.id ? 'active' : ''}" onclick="switchPoolTab('${pool.id}')">${pool.name}</div>`;
+            });
+            
+            html += `<div class="pool-tab add-pool-btn" onclick="openAddPoolModal()">+ 新建卡池</div>`;
+            container.innerHTML = html;
+
+            // 处理当前卡池封面
+            const coverContainer = document.getElementById('currentPoolCoverInfo');
+            if (currentPoolId !== 'all') {
+                const pool = gachaData.pools.find(p => p.id === currentPoolId);
+                if (pool && pool.cover) {
+                    document.getElementById('currentPoolImg').src = pool.cover;
+                    coverContainer.style.display = 'block';
+                } else {
+                    document.getElementById('currentPoolImg').src = '';
+                    coverContainer.style.display = 'block'; // 仍然显示，为了显示删除按钮
+                }
+            } else {
+                coverContainer.style.display = 'none';
+            }
+        }
+
+        // 计算数值辅助函数
+        function calcStats(records) {
+            const totalPulls = records.reduce((sum, r) => sum + parseInt(r.pulls), 0);
+            const totalSsr = records.filter(r => r.rarity === '绝密').length;
+            const avgSsr = totalSsr > 0 ? (totalPulls / totalSsr).toFixed(1) : '0.0';
+            const totalUp = records.filter(r => r.isUp).length;
+            const upRate = totalSsr > 0 ? ((totalUp / totalSsr) * 100).toFixed(1) + '%' : '0.0%';
+            
+            return { totalPulls, totalSsr, avgSsr, totalUp, upRate };
+        }
+
+        // 渲染统计面板
+        function renderStats() {
+            const mainTitle = document.getElementById('mainStatsTitle');
+            const limitedStats = document.querySelectorAll('.limited-stat');
+            const subStats = document.getElementById('subStats');
+
+            if (currentTab === 'standard') {
+                mainTitle.innerText = '普池总计';
+                limitedStats.forEach(el => el.classList.add('hidden'));
+                subStats.classList.add('hidden');
+
+                const stats = calcStats(gachaData.standard);
+                document.getElementById('totalPulls').innerText = stats.totalPulls;
+                document.getElementById('totalSsr').innerText = stats.totalSsr;
+                document.getElementById('avgSsr').innerText = stats.avgSsr;
+
+            } else {
+                mainTitle.innerText = '限定池总计 (所有)';
+                limitedStats.forEach(el => el.classList.remove('hidden'));
+                
+                // 总体统计
+                const allStats = calcStats(gachaData.limited);
+                document.getElementById('totalPulls').innerText = allStats.totalPulls;
+                document.getElementById('totalSsr').innerText = allStats.totalSsr;
+                document.getElementById('avgSsr').innerText = allStats.avgSsr;
+                document.getElementById('totalUp').innerText = allStats.totalUp;
+                document.getElementById('upRate').innerText = allStats.upRate;
+
+                // 单独池子统计
+                if (currentPoolId !== 'all') {
+                    const poolRecords = gachaData.limited.filter(r => r.poolId === currentPoolId);
+                    const subS = calcStats(poolRecords);
+                    const pool = gachaData.pools.find(p => p.id === currentPoolId);
+                    
+                    document.getElementById('subStatsTitle').innerText = `【${pool.name}】卡池统计`;
+                    document.getElementById('subTotalPulls').innerText = subS.totalPulls;
+                    document.getElementById('subTotalSsr').innerText = subS.totalSsr;
+                    document.getElementById('subAvgSsr').innerText = subS.avgSsr;
+                    document.getElementById('subTotalUp').innerText = subS.totalUp;
+                    document.getElementById('subUpRate').innerText = subS.upRate;
+                    
+                    subStats.classList.remove('hidden');
+                } else {
+                    subStats.classList.add('hidden');
+                }
+            }
+        }
+
+        // 渲染记录列表
+        function renderList() {
+            const container = document.getElementById('recordList');
+            container.innerHTML = '';
+
+            let records = [];
+            if (currentTab === 'standard') {
+                records = [...gachaData.standard];
+            } else {
+                records = currentPoolId === 'all' 
+                    ? [...gachaData.limited] 
+                    : gachaData.limited.filter(r => r.poolId === currentPoolId);
+            }
+
+            // 倒序显示（最新在前）
+            records.reverse().forEach(record => {
+                const isSSR = record.rarity === '绝密';
+                const isSpook = currentTab === 'limited' && isSSR && !record.isUp;
+                
+                let classes = 'record-item';
+                if (isSSR) classes += ' ssr';
+                if (isSpook) classes += ' spook';
+
+                let tags = '';
+                if (currentTab === 'limited' && isSSR) {
+                    if (record.isUp) tags += '<span class="tag tag-up">UP</span>';
+                    else tags += '<span class="tag tag-spook">歪</span>';
+                }
+
+                let poolNameText = '';
+                if (currentTab === 'limited' && currentPoolId === 'all') {
+                    const pool = gachaData.pools.find(p => p.id === record.poolId);
+                    poolNameText = pool ? `[${pool.name}] ` : '';
+                }
+
+                const avatarHtml = record.avatar 
+                    ? `<img src="${record.avatar}">` 
+                    : (isSSR ? '绝密' : '密探');
+
+                const html = `
+                    <div class="${classes}">
+                        <div class="avatar-box">${avatarHtml}</div>
+                        <div class="record-info">
+                            <div class="char-name">${record.name} ${tags}</div>
+                            <div class="record-meta">${poolNameText}${record.rarity}</div>
+                        </div>
+                        <div class="pull-count">第 ${record.pulls} 抽</div>
+                        <button class="del-btn" onclick="deleteRecord('${record.id}')">×</button>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+
+            if(records.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#666; margin-top:30px;">暂无记录</div>';
+            }
+        }
+
+        // 删除记录
+        function deleteRecord(id) {
+            if (!confirm('确定删除这条记录吗？')) return;
+            
+            if (currentTab === 'standard') {
+                gachaData.standard = gachaData.standard.filter(r => r.id !== id);
+            } else {
+                gachaData.limited = gachaData.limited.filter(r => r.id !== id);
+            }
+            saveData();
+            renderApp();
+        }
+
+        // 清空当前池
+        function clearCurrentRecords() {
+            if (!confirm('警告：确定要清空当前显示的所有记录吗？此操作不可逆！')) return;
+
+            if (currentTab === 'standard') {
+                gachaData.standard = [];
+            } else {
+                if (currentPoolId === 'all') {
+                    gachaData.limited = [];
+                    gachaData.pools = [];
+                } else {
+                    gachaData.limited = gachaData.limited.filter(r => r.poolId !== currentPoolId);
+                }
+            }
+            saveData();
+            renderApp();
+        }
+
+        // 删除当前限定池
+        function deleteCurrentPool() {
+            if (!confirm('确定删除该卡池及其包含的所有抽卡记录吗？')) return;
+            
+            gachaData.pools = gachaData.pools.filter(p => p.id !== currentPoolId);
+            gachaData.limited = gachaData.limited.filter(r => r.poolId !== currentPoolId);
+            
+            currentPoolId = 'all';
+            saveData();
+            renderApp();
+        }
+
+        // --- 弹窗逻辑 ---
+        function openAddModal() {
+            if (currentTab === 'limited' && gachaData.pools.length === 0) {
+                alert('请先新建一个限定卡池！');
+                openAddPoolModal();
+                return;
+            }
+
+            document.getElementById('addModal').classList.add('active');
+            document.getElementById('addModalTitle').innerText = currentTab === 'standard' ? '添加普池记录' : '添加限定池记录';
+            
+            // 清空表单
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputPulls').value = '';
+            document.getElementById('inputRarity').value = '绝密';
+            document.getElementById('inputIsUp').value = 'true';
+            
+            // 图片预览清空
+            tempBase64Avatar = '';
+            document.getElementById('previewAvatar').src = '';
+            document.getElementById('previewAvatar').style.display = 'none';
+
+            // 动态显示所属卡池
+            const poolGroup = document.getElementById('formPoolGroup');
+            if (currentTab === 'limited') {
+                poolGroup.classList.remove('hidden');
+                const select = document.getElementById('inputPoolId');
+                select.innerHTML = gachaData.pools.map(p => `<option value="${p.id}" ${p.id === currentPoolId ? 'selected':''}>${p.name}</option>`).join('');
+            } else {
+                poolGroup.classList.add('hidden');
+            }
+
+            checkRarity();
+        }
+
+        function checkRarity() {
+            const rarity = document.getElementById('inputRarity').value;
+            const upGroup = document.getElementById('formUpGroup');
+            // 只有限定池且是绝密才显示 UP选项
+            if (currentTab === 'limited' && rarity === '绝密') {
+                upGroup.classList.remove('hidden');
+            } else {
+                upGroup.classList.add('hidden');
+            }
+        }
+
+        function openAddPoolModal() {
+            document.getElementById('addPoolModal').classList.add('active');
+            document.getElementById('inputPoolName').value = '';
+            tempBase64Banner = '';
+            document.getElementById('previewBanner').src = '';
+            document.getElementById('previewBanner').style.display = 'none';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // 保存记录
+        function saveRecord() {
+            const name = document.getElementById('inputName').value.trim();
+            const rarity = document.getElementById('inputRarity').value;
+            const pulls = parseInt(document.getElementById('inputPulls').value);
+            
+            if (!name || isNaN(pulls) || pulls <= 0) {
+                alert('请填写正确的角色名和抽数！');
+                return;
+            }
+
+            const record = {
+                id: 'rec_' + Date.now(),
+                name,
+                rarity,
+                pulls,
+                avatar: tempBase64Avatar
+            };
+
+            if (currentTab === 'standard') {
+                gachaData.standard.push(record);
+            } else {
+                record.poolId = document.getElementById('inputPoolId').value;
+                record.isUp = rarity === '绝密' ? (document.getElementById('inputIsUp').value === 'true') : false;
+                gachaData.limited.push(record);
+            }
+
+            saveData();
+            closeModal('addModal');
+            renderApp();
+        }
+
+        // 保存新卡池
+        function savePool() {
+            const name = document.getElementById('inputPoolName').value.trim();
+            if (!name) {
+                alert('请填写卡池名称！');
+                return;
+            }
+
+            const poolId = 'pool_' + Date.now();
+            gachaData.pools.push({
+                id: poolId,
+                name,
+                cover: tempBase64Banner
+            });
+
+            currentPoolId = poolId; // 自动选中新建的池子
+            saveData();
+            closeModal('addPoolModal');
+            renderApp();
+        }
+
+        // --- 图片处理压缩 (防止localStorage爆满) ---
+        function handleImageUpload(event, previewId, maxSize) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // 按比例缩放
+                    if (width > maxSize || height > maxSize) {
+                        if (width > height) {
+                            height = Math.round((height * maxSize) / width);
+                            width = maxSize;
+                        } else {
+                            width = Math.round((width * maxSize) / height);
+                            height = maxSize;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // 压缩为 jpeg, 质量 0.7
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    document.getElementById(previewId).src = dataUrl;
+                    document.getElementById(previewId).style.display = 'block';
+
+                    if (previewId === 'previewAvatar') tempBase64Avatar = dataUrl;
+                    if (previewId === 'previewBanner') tempBase64Banner = dataUrl;
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        // --- 导入导出功能 ---
+        function exportData() {
+            const dataStr = JSON.stringify(gachaData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            const date = new Date().toISOString().split('T')[0];
+            a.download = `如鸢抽卡记录_${date}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.standard || imported.limited) {
+                        gachaData = {
+                            standard: imported.standard || [],
+                            pools: imported.pools || [],
+                            limited: imported.limited || []
+                        };
+                        saveData();
+                        alert('导入成功！');
+                        currentTab = 'standard';
+                        switchMainTab('standard');
+                    } else {
+                        alert('JSON格式不正确，缺少必要数据段。');
+                    }
+                } catch (err) {
+                    alert('文件解析失败，请确保是正确的JSON备份文件。');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // 清空选择，允许重复导入同一文件
+        }
+    </script>
+</body>
+</html>
