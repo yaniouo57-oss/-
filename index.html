@@ -61,10 +61,26 @@
         
         /* 限定池「全部」卡池卡片样式 */
         .pool-card-item { display: flex; align-items: center; background: var(--panel-bg); border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 12px; }
-        .pool-card-img-wrapper { position: relative; width: 110px; height: 75px; border-radius: 6px; overflow: hidden; background: #2a2a2a; flex-shrink: 0; border: 1px solid var(--gold-dark); }
-        .pool-card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* 展示图片的左半部分（二分之一） */
+        .pool-card-img-wrapper { 
+            position: relative; 
+            width: 110px; 
+            height: 75px; 
+            border-radius: 6px; 
+            overflow: hidden; 
+            background: #2a2a2a; 
+            flex-shrink: 0; 
+            border: 1px solid var(--gold-dark); 
+        }
+        .pool-card-img-wrapper img { 
+            width: 200%; 
+            height: 100%; 
+            object-fit: cover; 
+            object-position: left center; 
+        }
         .pool-card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #555; font-size: 12px; }
-        .pool-card-title { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.75); color: var(--gold-light); font-size: 11px; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pool-card-title { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.75); color: var(--gold-light); font-size: 11px; padding: 2px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 2; }
         
         .pool-card-stats { flex: 1; margin-left: 12px; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
         .pool-card-stat-row { font-size: 12px; color: var(--text-sub); }
