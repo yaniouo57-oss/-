@@ -21,8 +21,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { 
             background-color: var(--bg-dark); 
-            /* 替换为了您提供的猫咪背景图，带有平铺效果和柔和遮罩 */
-            background-image: linear-gradient(rgba(251, 249, 244, 0.92), rgba(251, 249, 244, 0.92)), url('data:image/jpeg;base64,'); /* 内部填入精简后的背景图Base64 */
             background-repeat: repeat;
             background-size: 300px;
             color: var(--text-main); 
@@ -175,7 +173,7 @@
         </div>
     </div>
 
-    <!-- 统计面板 1: 普池 / 限定池总计 -->
+    <!-- 统计面板 (普池 或 限定池“全部”时显示) -->
     <div class="stats-panel" id="mainStats">
         <div class="stats-title" id="mainStatsTitle">普池总计</div>
         <div class="stats-grid">
@@ -185,18 +183,6 @@
             <!-- 下面两项仅限定池总计显示 -->
             <div class="stat-item limited-stat hidden"><span class="stat-val" id="totalUp">0</span><span class="stat-label">UP总数</span></div>
             <div class="stat-item limited-stat hidden"><span class="stat-val" id="upRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
-        </div>
-    </div>
-
-    <!-- 统计面板 2: 单个限定池统计 -->
-    <div class="stats-panel hidden" id="subStats">
-        <div class="stats-title" id="subStatsTitle">当前卡池统计</div>
-        <div class="stats-grid">
-            <div class="stat-item"><span class="stat-val" id="subTotalPulls">0</span><span class="stat-label">总次数</span></div>
-            <div class="stat-item"><span class="stat-val" id="subTotalSsr">0</span><span class="stat-label">绝密数</span></div>
-            <div class="stat-item"><span class="stat-val" id="subAvgSsr">0.0</span><span class="stat-label">平均出绝密</span></div>
-            <div class="stat-item"><span class="stat-val" id="subTotalUp">0</span><span class="stat-label">UP数</span></div>
-            <div class="stat-item"><span class="stat-val" id="subUpRate">0.0%</span><span class="stat-label">小保底不歪率</span></div>
         </div>
     </div>
 
@@ -307,11 +293,7 @@
     </div>
 
     <script>
-        // 将猫咪背景图嵌入JS，赋值给CSS背景变量
-        const catBgBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAACAQABAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA="; // (此处使用完整压缩背景图数据)
         // 动态将背景图写入样式中
-        const styleNode = document.createElement('style');
-        // 由于上面样式里已经直接写了内联背景图的结构，这里直接更新主体背景样式
         document.body.style.backgroundImage = `linear-gradient(rgba(251, 249, 244, 0.93), rgba(251, 249, 244, 0.93)), url('e3e1ce98-2164-478c-a8aa-b0d776415d59.jpg')`;
 
         // 数据结构定义
@@ -478,18 +460,16 @@
             return { totalPulls, totalSsr, avgSsr, totalUp, upRate };
         }
 
-        // 渲染统计面板
+        // 渲染统计面板 (普池 或 限定池“全部”时显示)
         function renderStats() {
             const mainStats = document.getElementById('mainStats');
             const mainTitle = document.getElementById('mainStatsTitle');
             const limitedStats = document.querySelectorAll('.limited-stat');
-            const subStats = document.getElementById('subStats');
 
             if (currentTab === 'standard') {
                 mainStats.classList.remove('hidden');
                 mainTitle.innerText = '普池总计';
                 limitedStats.forEach(el => el.classList.add('hidden'));
-                subStats.classList.add('hidden');
 
                 const stats = calcStats(gachaData.standard);
                 document.getElementById('totalPulls').innerText = stats.totalPulls;
@@ -499,8 +479,6 @@
             } else {
                 if (currentPoolId === 'all') {
                     mainStats.classList.remove('hidden');
-                    subStats.classList.add('hidden');
-
                     mainTitle.innerText = '限定池总计 (所有)';
                     limitedStats.forEach(el => el.classList.remove('hidden'));
                     
@@ -511,19 +489,8 @@
                     document.getElementById('totalUp').innerText = allStats.totalUp;
                     document.getElementById('upRate').innerText = allStats.upRate;
                 } else {
+                    // 每个具体的限定卡池界面隐藏统计面板
                     mainStats.classList.add('hidden');
-                    subStats.classList.remove('hidden');
-
-                    const poolRecords = gachaData.limited.filter(r => r.poolId === currentPoolId);
-                    const subS = calcStats(poolRecords);
-                    const pool = gachaData.pools.find(p => p.id === currentPoolId);
-                    
-                    document.getElementById('subStatsTitle').innerText = `【${pool ? pool.name : ''}】卡池统计`;
-                    document.getElementById('subTotalPulls').innerText = subS.totalPulls;
-                    document.getElementById('subTotalSsr').innerText = subS.totalSsr;
-                    document.getElementById('subAvgSsr').innerText = subS.avgSsr;
-                    document.getElementById('subTotalUp').innerText = subS.totalUp;
-                    document.getElementById('subUpRate').innerText = subS.upRate;
                 }
             }
         }
